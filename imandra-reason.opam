@@ -9,7 +9,7 @@ build: [
 ]
 depends: [
   "jbuilder" {build}
-  "menhir"
+  "menhir" {>= "20170418" & <= "20171013"}
   "ocaml-migrate-parsetree"
   "easy-format"
 ]
