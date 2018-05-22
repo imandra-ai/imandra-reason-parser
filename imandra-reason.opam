@@ -11,6 +11,7 @@ depends: [
   "jbuilder" {build}
   "menhir" {>= "20170418" & <= "20171013"}
   "ocaml-migrate-parsetree"
+  "ocaml-compiler-libs"
   "easy-format"
 ]
 homepage: "https://github.com/aestheticintegration/imandra-reason"

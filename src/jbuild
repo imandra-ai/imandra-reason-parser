@@ -2,22 +2,12 @@
 
 (ocamllex (reason_lexer))
 
-; Update error messages based on new grammar
-; Previously, called update_error in the `Makefile`.
-; TODO: Get rid of bash-isms here to support cross-platform.
-(rule
- ((targets (reason_parser.messages))
-  (deps (reason_parser.mly reason_parser.messages.checked-in))
-  (action
-    (with-stdout-to ${@} (bash "menhir --explain --strict --unused-tokens ./reason_parser.mly --update-errors ./reason_parser.messages.checked-in | sed -e 's/[[:space:]]*$$//g'"))
-   )))
-
 ; Previously, make preprocess.
 (rule
  ((targets (reason_parser.cmly reason_parser.ml reason_parser.mli))
-  (deps (reason_parser.mly reason_parser.messages))
+  (deps (reason_parser.mly))
   (action
-   (run menhir --strict --unused-tokens --fixed-exception --table --cmly reason_parser.mly))))
+   (run menhir --strict --unused-tokens --fixed-exception --table --infer --cmly reason_parser.mly))))
 
 (executables
  ((names (menhir_error_processor))
@@ -33,9 +23,9 @@
 ; Previously, make compiler_error
 (rule
  ((targets (reason_parser_message.ml))
-  (deps (reason_parser.mly reason_parser.messages))
+  (deps (reason_parser.mly))
   (action
-   (with-stdout-to ${@} (run menhir --explain --strict --unused-tokens reason_parser.mly --compile-errors reason_parser.messages)))))
+   (with-stdout-to ${@} (run menhir --explain --strict --infer --unused-tokens reason_parser.mly --compile-errors reason_parser.messages.checked-in)))))
 
 (library
  ((name imandra_reason)
@@ -63,4 +53,5 @@
   (libraries
    (ocaml-migrate-parsetree
     menhirLib
+    compiler-libs.common
     easy-format))))
