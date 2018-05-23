@@ -62,3 +62,8 @@ let implementation lexbuf =
     x
     |> Migrate_parsetree_404_403_migrate.copy_structure
     |> Rewrite_parsetree.structure)
+
+let init () =
+  let open Imandra_lib.Syntax.Raw in
+  let plugin = { implementation; use_file; toplevel_phrase}  in
+  register_reason plugin
