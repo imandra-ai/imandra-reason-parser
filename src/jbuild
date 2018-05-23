@@ -36,6 +36,7 @@
   (wrapped true)
   (modules
    (lexer_warning
+    plugin
     reason_syntax_util
     reason_comment
     reason_layout
@@ -54,4 +55,5 @@
    (ocaml-migrate-parsetree
     menhirLib
     imandra.lib
+    uchar
     easy-format))))

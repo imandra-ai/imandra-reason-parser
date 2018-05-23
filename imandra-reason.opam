@@ -13,6 +13,7 @@ depends: [
   "ocaml-migrate-parsetree"
   "ocaml-compiler-libs"
   "imandra"
+  "uchar"
   "easy-format"
 ]
 homepage: "https://github.com/aestheticintegration/imandra-reason"
