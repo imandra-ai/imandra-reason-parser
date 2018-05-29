@@ -995,6 +995,10 @@ let prepend_attrs_to_labels attrs = function
   | [] -> [] (* not possible for valid inputs *)
   | x :: xs -> {x with pld_attributes = attrs @ x.pld_attributes} :: xs
 
+let mk_anonymous_theorem =
+  let n = ref 0 in
+  fun () -> incr n; "_anonymous_theorem_" ^ string_of_int !n
+
 %}
 
 
@@ -1070,6 +1074,9 @@ let prepend_attrs_to_labels attrs = function
 %token LESSDOTDOTGREATER
 %token EQUALGREATER
 %token LET
+%token INSTANCE
+%token VERIFY
+%token THEOREM
 %token <string> LIDENT
 %token LPAREN
 %token LBRACKETAT
@@ -1613,6 +1620,9 @@ structure_item:
       (* No sense in having item_extension_sugar for something that's already an
        * item_extension *)
       { mkstr(Pstr_extension ($2, $1)) }
+    | top_verify { $1 }
+    | top_instance { $1 }
+    | top_theorem { $1 }
     | let_bindings
       { val_of_let_bindings $1 }
     ) { [$1] }
@@ -3127,6 +3137,51 @@ labeled_expr:
       (Nolabel, exp)
     }
 ;
+
+top_verify:
+  | item_attributes VERIFY simple_expr {
+    (* `verify (fun x y -> body)` becomes `let _ = (fun x y -> body) [@@verify]` *)
+    let loc = rhs_loc 3 and attrs = $1 in
+    let vb = {
+      pvb_pat=mkpat Ppat_any;
+      pvb_loc=loc;
+      pvb_expr=$3;
+      pvb_attributes=({txt="verify";loc}, PStr[]) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
+top_instance:
+  | item_attributes INSTANCE simple_expr {
+    (* `instance (fun x y -> body)` becomes `let _ = (fun x y -> body) [@@instance]` *)
+    let loc = rhs_loc 3 and attrs = $1 in
+    let vb = {
+      pvb_pat=mkpat Ppat_any;
+      pvb_loc=loc;
+      pvb_expr=$3;
+      pvb_attributes=({txt="instance";loc}, PStr[]) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
+theorem_name:
+  | ident { $1 }
+  | UNDERSCORE { mk_anonymous_theorem () }
+
+top_theorem:
+  | item_attributes THEOREM theorem_name EQUAL expr {
+    (* `theorem foo x y = body` becomes `let foo x y = body [@@theorem]` *)
+    let loc = rhs_loc 3 in
+    let id = $3 and fun_def = $5 and attrs = $1 in
+    let vb = {
+      pvb_pat=mkpat (Ppat_var {txt=id;loc});
+      pvb_loc=loc;
+      pvb_expr=fun_def;
+      pvb_attributes=({txt="theorem";loc}, PStr[]) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
 
 %inline and_let_binding:
   (* AND bindings don't accept a preceeding extension ID, but do accept

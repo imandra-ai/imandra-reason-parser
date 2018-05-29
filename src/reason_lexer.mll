@@ -118,6 +118,9 @@ let keyword_table =
     "initializer", INITIALIZER;
     "lazy", LAZY;
     "let", LET;
+    "instance", INSTANCE;
+    "theorem", THEOREM;
+    "verify", VERIFY;
     "switch", SWITCH;
     "module", MODULE;
     "pub", PUB;
