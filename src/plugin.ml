@@ -1,7 +1,12 @@
 
 module L = Reason_lexer
 
+let init_lexer = lazy (
+  L.init ();
+)
+
 let wrap_internal lex_fun parsing_fun lexbuf =
+  Lazy.force init_lexer;
   Location.init lexbuf "toplevel"; (* remove smartass printing *)
   try
     Docstrings.init ();
