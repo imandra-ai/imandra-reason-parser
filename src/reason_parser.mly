@@ -3826,7 +3826,7 @@ constructor_arguments:
     { Pcstr_tuple $1 }
 ;
 
-record_label_declaration:
+%inline record_label_declaration:
   | item_attributes mutable_flag as_loc(LIDENT)
     { let loc = mklocation $symbolstartpos $endpos in
       Type.field $3 (mkct $3) ~attrs:$1 ~mut:$2 ~loc
