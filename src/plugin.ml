@@ -1,5 +1,4 @@
 
-module Rw = Imandra_lib.Rewrite_parsetree
 module L = Reason_lexer
 
 let rec skip_phrase lexbuf =
@@ -48,22 +47,14 @@ let wrap ~post parsing_fun lexbuf =
 let toplevel_phrase lexbuf =
   wrap Reason_parser.toplevel_phrase lexbuf ~post:(fun x ->
     x
-    |> Migrate_parsetree_404_403_migrate.copy_toplevel_phrase
-    |> Rw.toplevel_phrase)
+    |> Migrate_parsetree_404_403_migrate.copy_toplevel_phrase)
 
 let use_file lexbuf =
   wrap Reason_parser.use_file lexbuf ~post:(fun x ->
     x
-    |> List.map Migrate_parsetree_404_403_migrate.copy_toplevel_phrase
-    |> List.map Rw.toplevel_phrase)
+    |> List.map Migrate_parsetree_404_403_migrate.copy_toplevel_phrase)
 
 let implementation lexbuf =
   wrap Reason_parser.implementation lexbuf ~post:(fun x ->
     x
-    |> Migrate_parsetree_404_403_migrate.copy_structure
-    |> Rw.structure)
-
-let init () =
-  let open Imandra_lib.Syntax.Raw in
-  let plugin = { implementation; use_file; toplevel_phrase}  in
-  register_reason plugin
+    |> Migrate_parsetree_404_403_migrate.copy_structure)

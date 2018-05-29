@@ -12,7 +12,6 @@ depends: [
   "menhir" {>= "20170418" & <= "20171013"}
   "ocaml-migrate-parsetree"
   "ocaml-compiler-libs"
-  "imandra"
   "uchar"
   "easy-format"
 ]

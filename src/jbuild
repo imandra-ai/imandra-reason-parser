@@ -54,6 +54,5 @@
   (libraries
    (ocaml-migrate-parsetree
     menhirLib
-    imandra.lib
     uchar
     easy-format))))
