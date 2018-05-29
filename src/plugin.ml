@@ -1,16 +1,17 @@
 
 module L = Reason_lexer
+module P = Reason_toolchain.Reason_syntax
 
 let init_lexer = lazy (
   L.init ();
 )
 
-let wrap_internal lex_fun parsing_fun lexbuf =
+let wrap_internal parsing_fun lexbuf =
   Lazy.force init_lexer;
   Location.init lexbuf "toplevel"; (* remove smartass printing *)
   try
     Docstrings.init ();
-    let ast = parsing_fun lex_fun lexbuf in
+    let ast = parsing_fun lexbuf in
     Parsing.clear_parser();
     Docstrings.warn_bad_docstrings ();
     ast
@@ -20,19 +21,19 @@ let wrap_internal lex_fun parsing_fun lexbuf =
     raise(Syntaxerr.Error(Syntaxerr.Other loc))
 
 let wrap ~post parsing_fun lexbuf =
-  wrap_internal Reason_lexer.token parsing_fun lexbuf |> post
+  wrap_internal parsing_fun lexbuf |> post
 
 let toplevel_phrase lexbuf =
-  wrap Reason_parser.toplevel_phrase lexbuf ~post:(fun x ->
+  wrap P.toplevel_phrase lexbuf ~post:(fun x ->
     x
     |> Migrate_parsetree_404_403_migrate.copy_toplevel_phrase)
 
 let use_file lexbuf =
-  wrap Reason_parser.use_file lexbuf ~post:(fun x ->
+  wrap P.use_file lexbuf ~post:(fun x ->
     x
     |> List.map Migrate_parsetree_404_403_migrate.copy_toplevel_phrase)
 
 let implementation lexbuf =
-  wrap Reason_parser.implementation lexbuf ~post:(fun x ->
+  wrap P.implementation lexbuf ~post:(fun x ->
     x
     |> Migrate_parsetree_404_403_migrate.copy_structure)
