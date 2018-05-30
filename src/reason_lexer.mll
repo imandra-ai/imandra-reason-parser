@@ -120,6 +120,7 @@ let keyword_table =
     "let", LET;
     "instance", INSTANCE;
     "theorem", THEOREM;
+    "axiom", AXIOM;
     "verify", VERIFY;
     "switch", SWITCH;
     "module", MODULE;

@@ -995,9 +995,9 @@ let prepend_attrs_to_labels attrs = function
   | [] -> [] (* not possible for valid inputs *)
   | x :: xs -> {x with pld_attributes = attrs @ x.pld_attributes} :: xs
 
-let mk_anonymous_theorem =
+let mk_anonymous =
   let n = ref 0 in
-  fun () -> incr n; "_anonymous_theorem_" ^ string_of_int !n
+  fun what -> incr n; Printf.sprintf "_anonymous_%s_%d" what !n
 
 %}
 
@@ -1077,6 +1077,7 @@ let mk_anonymous_theorem =
 %token INSTANCE
 %token VERIFY
 %token THEOREM
+%token AXIOM
 %token <string> LIDENT
 %token LPAREN
 %token LBRACKETAT
@@ -1623,6 +1624,7 @@ structure_item:
     | top_verify { $1 }
     | top_instance { $1 }
     | top_theorem { $1 }
+    | top_axiom { $1 }
     | let_bindings
       { val_of_let_bindings $1 }
     ) { [$1] }
@@ -3166,7 +3168,7 @@ top_instance:
 
 theorem_name:
   | ident { $1 }
-  | UNDERSCORE { mk_anonymous_theorem () }
+  | UNDERSCORE { mk_anonymous "theorem" }
 
 top_theorem:
   | item_attributes THEOREM theorem_name EQUAL expr {
@@ -3178,6 +3180,24 @@ top_theorem:
       pvb_loc=loc;
       pvb_expr=fun_def;
       pvb_attributes=({txt="theorem";loc}, PStr[]) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
+axiom_name:
+  | ident { $1 }
+  | UNDERSCORE { mk_anonymous "axiom" }
+
+top_axiom:
+  | item_attributes AXIOM axiom_name EQUAL expr {
+    (* `axiom foo x y = body` becomes `let foo x y = body [@@axiom]` *)
+    let loc = rhs_loc 3 in
+    let id = $3 and fun_def = $5 and attrs = $1 in
+    let vb = {
+      pvb_pat=mkpat (Ppat_var {txt=id;loc});
+      pvb_loc=loc;
+      pvb_expr=fun_def;
+      pvb_attributes=({txt="axiom";loc}, PStr[]) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
