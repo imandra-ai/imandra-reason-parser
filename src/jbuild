@@ -28,11 +28,11 @@
    (with-stdout-to ${@} (run menhir --explain --strict --unused-tokens reason_parser.mly --compile-errors reason_parser.messages.checked-in)))))
 
 (library
- ((name imandra_reason)
+ ((name imandra_reason_parser)
 ; Uncomment to allow make coverage target to work
 ; requires you to have run $ opam install bisect_ppx
 ;  (preprocess (pps (bisect_ppx)))
-  (public_name imandra-reason)
+  (public_name imandra-reason-parser)
   (wrapped true)
   (modules
    (lexer_warning
