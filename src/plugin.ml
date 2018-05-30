@@ -1,6 +1,7 @@
 
 module L = Reason_lexer
 module P = Reason_toolchain.Reason_syntax
+module Util = Reason_syntax_util
 
 let init_lexer = lazy (
   L.init ();
@@ -36,3 +37,10 @@ let implementation lexbuf =
   wrap P.implementation lexbuf ~post:(fun x ->
     x
     |> Migrate_parsetree_404_403_migrate.copy_structure)
+
+let report_exn out (e:exn): bool =
+  match e with
+    | Util.Error (loc, Util.Syntax_error msg) ->
+      Format.fprintf out "%a@ @{<Red>Reason syntax error@}:@ %s@." Location.print_loc loc msg;
+      true
+    | _ -> false
