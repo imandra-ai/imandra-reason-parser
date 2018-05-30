@@ -41,6 +41,6 @@ let implementation lexbuf =
 let report_exn out (e:exn): bool =
   match e with
     | Util.Error (loc, Util.Syntax_error msg) ->
-      Format.fprintf out "%a@ @{<Red>Reason syntax error@}:@ %s@." Location.print_loc loc msg;
+      Format.fprintf out "%a@\n@{<Red>Reason syntax error@}:@ %s@." Location.print_loc loc msg;
       true
     | _ -> false
