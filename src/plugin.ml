@@ -8,7 +8,6 @@ let init_lexer = lazy (
 
 let wrap_internal parsing_fun lexbuf =
   Lazy.force init_lexer;
-  Location.init lexbuf "toplevel"; (* remove smartass printing *)
   try
     Docstrings.init ();
     let ast = parsing_fun lexbuf in
