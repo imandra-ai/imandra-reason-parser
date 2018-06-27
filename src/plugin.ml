@@ -1,27 +1,14 @@
 
 module L = Reason_lexer
-module P = Reason_toolchain.Reason_syntax
+module P = Reason_toolchain.RE
 module Util = Reason_syntax_util
 
 let init_lexer = lazy (
   L.init ();
 )
 
-let wrap_internal parsing_fun lexbuf =
-  Lazy.force init_lexer;
-  try
-    Docstrings.init ();
-    let ast = parsing_fun lexbuf in
-    Parsing.clear_parser();
-    Docstrings.warn_bad_docstrings ();
-    ast
-  with
-  | Parsing.Parse_error | Syntaxerr.Escape_error ->
-    let loc = Location.curr lexbuf in
-    raise(Syntaxerr.Error(Syntaxerr.Other loc))
-
 let wrap ~post parsing_fun lexbuf =
-  wrap_internal parsing_fun lexbuf |> post
+  parsing_fun lexbuf |> post
 
 let toplevel_phrase lexbuf =
   wrap P.toplevel_phrase lexbuf ~post:(fun x ->
