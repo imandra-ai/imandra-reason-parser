@@ -10,20 +10,22 @@ let init_lexer = lazy (
 let wrap ~post parsing_fun lexbuf =
   parsing_fun lexbuf |> post
 
+module Conv = Migrate_parsetree.Convert(Migrate_parsetree.OCaml_404)(Migrate_parsetree.OCaml_current)
+
 let toplevel_phrase lexbuf =
   wrap P.toplevel_phrase lexbuf ~post:(fun x ->
     x
-    |> Migrate_parsetree_404_403_migrate.copy_toplevel_phrase)
+    |> Conv.copy_toplevel_phrase)
 
 let use_file lexbuf =
   wrap P.use_file lexbuf ~post:(fun x ->
     x
-    |> List.map Migrate_parsetree_404_403_migrate.copy_toplevel_phrase)
+    |> List.map Conv.copy_toplevel_phrase)
 
 let implementation lexbuf =
   wrap P.implementation lexbuf ~post:(fun x ->
     x
-    |> Migrate_parsetree_404_403_migrate.copy_structure)
+    |> Conv.copy_structure)
 
 let report_exn out (e:exn): bool =
   match e with
