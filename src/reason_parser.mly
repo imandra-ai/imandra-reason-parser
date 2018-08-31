@@ -1077,6 +1077,7 @@ let mk_anonymous =
 %token INSTANCE
 %token VERIFY
 %token THEOREM
+%token LEMMA
 %token AXIOM
 %token <string> LIDENT
 %token LPAREN
@@ -3170,8 +3171,12 @@ theorem_name:
   | ident { $1 }
   | UNDERSCORE { mk_anonymous "theorem" }
 
+%inline theorem_start:
+  | THEOREM {}
+  | LEMMA {}
+
 top_theorem:
-  | item_attributes THEOREM theorem_name EQUAL expr {
+  | item_attributes theorem_start theorem_name EQUAL expr {
     (* `theorem foo x y = body` becomes `let foo x y = body [@@theorem]` *)
     let loc = rhs_loc 3 in
     let id = $3 and fun_def = $5 and attrs = $1 in
