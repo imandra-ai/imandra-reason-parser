@@ -522,6 +522,8 @@ rule token = parse
   | "->" { MINUSGREATER }
   | "=>" { EQUALGREATER }
   | "==>" { IMPLY_ARROW }
+  | "<==" { IMPLY_LEFT_ARROW }
+  | "<==>" { EQUIV_ARROW }
   | "#"  { SHARP }
   | "."  { DOT }
   | ".." { DOTDOT }

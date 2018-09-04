@@ -1080,6 +1080,8 @@ let mk_anonymous =
 %token LEMMA
 %token AXIOM
 %token IMPLY_ARROW
+%token IMPLY_LEFT_ARROW
+%token EQUIV_ARROW
 %token <string> LIDENT
 %token LPAREN
 %token LBRACKETAT
@@ -1168,7 +1170,9 @@ conflicts.
 %nonassoc below_BAR                     (* Allows "building up" of many bars *)
 %left     BAR                           (* pattern (p|p|p) *)
 
+%nonassoc EQUIV_ARROW                   (* expr (e <==> e) *)
 %right    IMPLY_ARROW                   (* expr (e ==> e ==> e) *)
+%left     IMPLY_LEFT_ARROW                   (* expr (e <== e <== e) *)
 %right    OR BARBAR                     (* expr (e || e || e) *)
 %right    AMPERSAND AMPERAMPER          (* expr (e && e && e) *)
 %left     INFIXOP0 LESS GREATER         (* expr (e OP e OP e) *)
@@ -4412,6 +4416,8 @@ val_ident:
   | OR                { "or" }
   | BARBAR            { "||" }
   | IMPLY_ARROW       { "==>" }
+  | IMPLY_LEFT_ARROW  { "<==" }
+  | EQUIV_ARROW       { "<==>" }
   | AMPERSAND         { "&" }
   | AMPERAMPER        { "&&" }
   | COLONEQUAL        { ":=" }
