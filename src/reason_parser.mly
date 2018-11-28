@@ -3155,7 +3155,7 @@ top_verify:
       pvb_pat=mkpat Ppat_any;
       pvb_loc=loc;
       pvb_expr=$3;
-      pvb_attributes=({txt="verify";loc}, PStr[]) :: attrs;
+      pvb_attributes=({txt="imandra_verify";loc}, PStr[]) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
@@ -3168,7 +3168,7 @@ top_instance:
       pvb_pat=mkpat Ppat_any;
       pvb_loc=loc;
       pvb_expr=$3;
-      pvb_attributes=({txt="instance";loc}, PStr[]) :: attrs;
+      pvb_attributes=({txt="imandra_instance";loc}, PStr[]) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
@@ -3190,7 +3190,7 @@ top_theorem:
       pvb_pat=mkpat (Ppat_var {txt=id;loc});
       pvb_loc=loc;
       pvb_expr=fun_def;
-      pvb_attributes=({txt="theorem";loc}, PStr[]) :: attrs;
+      pvb_attributes=({txt="imandra_theorem";loc}, PStr[]) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
@@ -3208,7 +3208,7 @@ top_axiom:
       pvb_pat=mkpat (Ppat_var {txt=id;loc});
       pvb_loc=loc;
       pvb_expr=fun_def;
-      pvb_attributes=({txt="axiom";loc}, PStr[]) :: attrs;
+      pvb_attributes=({txt="imandra_axiom";loc}, PStr[]) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
