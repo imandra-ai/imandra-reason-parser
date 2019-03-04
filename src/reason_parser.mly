@@ -3147,28 +3147,46 @@ labeled_expr:
     }
 ;
 
+upto_label:
+  | { [] }
+  | LABEL_WITH_EQUAL INT
+    { (* used for `verify ~upto:n …` *)
+      if $1 = "upto" || $1 = "upto_steps" then (
+        let n, _ = $2 in
+        [mkstrexp (mkexp (Pexp_constant (Pconst_integer (n,Some 'i')))) []]
+      ) else if $1 = "upto_bound" then (
+        let n, _ = $2 in
+        [mkstrexp (mkexp (Pexp_tuple
+          [mkexp (Pexp_constant (Pconst_string ("bound", None)));
+           mkexp (Pexp_constant (Pconst_integer (n,Some 'i')))])) []]
+      ) else (
+        let loc = rhs_loc 2 in
+        raise Syntaxerr.(Error(Not_expecting(loc, $1)));
+      )
+    }
+
 top_verify:
-  | item_attributes VERIFY simple_expr {
+  | item_attributes VERIFY upto_label simple_expr {
     (* `verify (fun x y -> body)` becomes `let _ = (fun x y -> body) [@@verify]` *)
-    let loc = rhs_loc 3 and attrs = $1 in
+    let loc = rhs_loc 4 and attrs = $1 and upto = $3 in
     let vb = {
       pvb_pat=mkpat Ppat_any;
       pvb_loc=loc;
-      pvb_expr=$3;
-      pvb_attributes=({txt="imandra_verify";loc}, PStr[]) :: attrs;
+      pvb_expr=$4;
+      pvb_attributes=({txt="imandra_verify";loc}, PStr upto) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
 
 top_instance:
-  | item_attributes INSTANCE simple_expr {
+  | item_attributes INSTANCE upto_label simple_expr {
     (* `instance (fun x y -> body)` becomes `let _ = (fun x y -> body) [@@instance]` *)
-    let loc = rhs_loc 3 and attrs = $1 in
+    let loc = rhs_loc 4 and attrs = $1 and upto = $3 in
     let vb = {
       pvb_pat=mkpat Ppat_any;
       pvb_loc=loc;
-      pvb_expr=$3;
-      pvb_attributes=({txt="imandra_instance";loc}, PStr[]) :: attrs;
+      pvb_expr=$4;
+      pvb_attributes=({txt="imandra_instance";loc}, PStr upto) :: attrs;
     } in
     mkstr (Pstr_value (Nonrecursive, [vb]))
   }
