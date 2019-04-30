@@ -1,8 +1,10 @@
 
+PACKAGE=imandra-reason-parser
+
 all:
-	jbuilder build @install
+	@dune build @install -p $(PACKAGE)
 
 clean:
-	jbuilder clean
+	@dune clean
 
 .PHONY: all clean
