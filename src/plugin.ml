@@ -1,4 +1,3 @@
-
 module L = Reason_lexer
 module P = Reason_toolchain.RE
 module Util = Reason_syntax_util
@@ -11,6 +10,11 @@ let wrap ~post parsing_fun lexbuf =
   parsing_fun lexbuf |> post
 
 module Conv = Migrate_parsetree.Convert(Migrate_parsetree.OCaml_404)(Migrate_parsetree.OCaml_current)
+
+let expr lexbuf =
+  wrap P.expr lexbuf ~post:(fun x ->
+    x
+    |> Conv.copy_expression)
 
 let toplevel_phrase lexbuf =
   wrap P.toplevel_phrase lexbuf ~post:(fun x ->

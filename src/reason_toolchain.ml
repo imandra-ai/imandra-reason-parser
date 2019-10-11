@@ -116,6 +116,7 @@ module type Toolchain = sig
   val core_type: Lexing.lexbuf -> Parsetree.core_type
   val implementation: Lexing.lexbuf -> Parsetree.structure
   val interface: Lexing.lexbuf -> Parsetree.signature
+  val expr : Lexing.lexbuf -> Parsetree.expression
   val toplevel_phrase: Lexing.lexbuf -> Parsetree.toplevel_phrase
   val use_file: Lexing.lexbuf -> Parsetree.toplevel_phrase list
 
@@ -141,6 +142,7 @@ module type Toolchain_spec = sig
   val implementation: Lexing.lexbuf -> Parsetree.structure
   val interface: Lexing.lexbuf -> Parsetree.signature
   val toplevel_phrase: Lexing.lexbuf -> Parsetree.toplevel_phrase
+  val expression : Lexing.lexbuf -> Parsetree.expression
   val use_file: Lexing.lexbuf -> Parsetree.toplevel_phrase list
 
   val format_interface_with_comments: (Parsetree.signature * Reason_comment.t list) -> Format.formatter -> unit
@@ -328,12 +330,24 @@ module Create_parse_entrypoint (Toolchain_impl: Toolchain_spec) :Toolchain = str
   let use_file_with_comments lexbuf =
     wrap_with_comments Toolchain_impl.use_file lexbuf
 
+  let expr_with_comments lexbuf =
+    try wrap_with_comments Toolchain_impl.expression lexbuf
+    with err when !Reason_config.recoverable ->
+      let loc, msg = match err with
+        | Location.Error err -> (err.loc, err.msg)
+        | _ -> (Location.curr lexbuf, invalidLex)
+      in
+      let error = Reason_syntax_util.syntax_error_extension_node loc msg in
+      (Ast_helper.Exp.mk ~loc (Parsetree.Pexp_extension error), [])
+
   (** [ast_only] wraps a function to return only the ast component
    *)
   let ast_only f =
     (fun lexbuf -> lexbuf |> f |> fst)
 
   let implementation = ast_only implementation_with_comments
+
+  let expr = ast_only expr_with_comments 
 
   let core_type = ast_only core_type_with_comments
 
@@ -397,6 +411,12 @@ module OCaml_syntax = struct
     Lexer_impl.filter_comments filter;
     result
 
+  let expression lexbuf =
+    parse_and_filter_doc_comments
+      (fun it -> it.Ast_mapper.expr it)
+      (fun lexbuf -> From_current.copy_expression
+                       (Parser.parse_expression Lexer.token lexbuf))
+      lexbuf
 
   let implementation lexbuf =
     parse_and_filter_doc_comments
@@ -773,6 +793,9 @@ module Reason_syntax = struct
 
   let implementation lexbuf =
     initial_run Reason_parser.Incremental.implementation lexbuf
+
+  let expression lexbuf =
+    initial_run Reason_parser.Incremental.parse_expression lexbuf
 
   let interface lexbuf =
     initial_run Reason_parser.Incremental.interface lexbuf
