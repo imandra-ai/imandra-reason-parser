@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "imandra-reason-parser"
-version: "0.1"
+version: "0.2"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes.2007@m4x.org"
 license: "MIT"
@@ -19,4 +19,3 @@ homepage: "https://github.com/aestheticintegration/imandra-reason-parser"
 bug-reports: "https://github.com/aestheticintegration/imandra-reason-parser/issues"
 dev-repo: "git+https://github.com/aestheticintegration/imandra-reason-parser.git"
 synopsis: "Adaptation of Reason's parser for Imandra"
-
