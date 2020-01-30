@@ -199,7 +199,7 @@ let print_out_value ppf tree =
     | Oval_string s ->
         begin try fprintf ppf "\"%s\"" (Reason_syntax_util.escape_string s) with
           Invalid_argument "String.create" -> fprintf ppf "<huge string>"
-        end
+        end [@ocaml.warning "-52"]
     | Oval_list tl ->
         fprintf ppf "@[<1>[%a]@]" (print_tree_list print_tree_1 ",") tl
     | Oval_array tl ->

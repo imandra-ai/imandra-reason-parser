@@ -13,6 +13,7 @@
   BuckleScript; ping @chenglou and a few others and we'll keep them synced up by
   patching the right parts, through the power of types(tm)
 *)
+module Ast_404 = Migrate_parsetree.Ast_404
 
 (* #if defined BS_NO_COMPILER_PATCH then *)
 open Ast_404
@@ -462,7 +463,7 @@ let () =
   Location.register_error_of_exn
     (function
      | Error (loc, err) ->
-        Some (Location.error_of_printer loc report_error err)
+        Some (Location.error_of_printer ~loc report_error err)
      | _ ->
         None
      )

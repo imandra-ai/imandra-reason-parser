@@ -1,5 +1,8 @@
 let warn_latin1 lexbuf =
-  let loc = Location.curr lexbuf in
+  let _loc = Location.curr lexbuf in
+  Format.eprintf "warning: ISO-Latin1 characters in identifiers@."
+  (*
   Location.prerr_warning loc
     (Warnings.Deprecated ("ISO-Latin1 characters in identifiers",loc,loc))
+  *)
 ;;
