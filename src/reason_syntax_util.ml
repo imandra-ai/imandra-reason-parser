@@ -505,6 +505,9 @@ let add_error_message err =
   in
   menhirMessagesError := !menhirMessagesError @ msg
 
+let split_compiler_error (err : Location.error) =
+  (err.main.loc, Format.asprintf "%t" err.main.txt)
+
 let location_is_before loc1 loc2 =
   let open Location in
   loc1.loc_end.Lexing.pos_cnum <= loc2.loc_start.Lexing.pos_cnum

@@ -104,4 +104,6 @@ val location_is_before : Ast_404.Location.t -> Ast_404.Location.t -> bool
 
 val location_contains : Ast_404.Location.t -> Ast_404.Location.t -> bool
 
+val split_compiler_error : Location.error -> Location.t * string
+
 (* #end *)
