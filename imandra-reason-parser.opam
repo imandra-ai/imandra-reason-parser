@@ -9,7 +9,7 @@ build: [
 ]
 depends: [
   "dune" {build}
-  "menhir" {>= "20170418" & <= "20171013"}
+  "menhir"
   "ocaml-migrate-parsetree"
   "ocaml-compiler-libs"
   "uchar"
