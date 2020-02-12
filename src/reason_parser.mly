@@ -4433,9 +4433,9 @@ val_ident:
   | GREATER           { ">" }
   | OR                { "or" }
   | BARBAR            { "||" }
-  | IMPLY_ARROW       { "==>" }
-  | IMPLY_LEFT_ARROW  { "<==" }
-  | EQUIV_ARROW       { "<==>" }
+  | IMPLY_ARROW       { "implies" }
+  | IMPLY_LEFT_ARROW  { "explies" }
+  | EQUIV_ARROW       { "iff" }
   | AMPERSAND         { "&" }
   | AMPERAMPER        { "&&" }
   | COLONEQUAL        { ":=" }
