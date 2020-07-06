@@ -14,6 +14,8 @@
   patching the right parts, through the power of types(tm)
 *)
 
+module Ast_404 = Migrate_parsetree.Ast_404
+
 val ml_to_reason_swap : string -> string
 
 val escape_string : string -> string
@@ -101,5 +103,7 @@ val add_error_message : menhirMessagesError -> unit
 val location_is_before : Ast_404.Location.t -> Ast_404.Location.t -> bool
 
 val location_contains : Ast_404.Location.t -> Ast_404.Location.t -> bool
+
+val split_compiler_error : Location.error -> Location.t * string
 
 (* #end *)

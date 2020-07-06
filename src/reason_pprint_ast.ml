@@ -46,6 +46,9 @@
 
 (* TODO more fine-grained precedence pretty-printing *)
 
+[@@@ocaml.warning "-27"]
+
+module Ast_404 = Migrate_parsetree.Ast_404
 
 open Ast_404
 open Asttypes
@@ -147,7 +150,7 @@ type infixChain =
 let expression_extension_sugar x =
   if x.pexp_attributes <> [] then None
   else match x.pexp_desc with
-    | Pexp_extension (name, PStr [{pstr_desc = Pstr_eval(expr, [])}])
+    | Pexp_extension (name, PStr [{pstr_desc = Pstr_eval(expr, []);_}])
       when name.txt <> "bs.obj" ->
       Some (name, expr)
     | _ -> None
@@ -210,11 +213,11 @@ let same_ast_modulo_varification_and_extensions t1 t2 =
     (* Importantly, cover the case where type constructors (of the form [a])
        are converted to type vars of the form ['a].
      *)
-    | (Ptyp_constr({txt=Lident s1}, []), Ptyp_var s2) -> string_equal s1 s2
+    | (Ptyp_constr({txt=Lident s1;_}, []), Ptyp_var s2) -> string_equal s1 s2
     (* Now cover the case where type variables (of the form ['a]) are
        converted to type constructors of the form [a].
      *)
-    | (Ptyp_var s1, Ptyp_constr({txt=Lident s2}, [])) -> string_equal s1 s2
+    | (Ptyp_var s1, Ptyp_constr({txt=Lident s2;_}, [])) -> string_equal s1 s2
     (* Now cover the typical case *)
     | (Ptyp_constr(longident1, lst1), Ptyp_constr(longident2, lst2))  ->
       longident_same longident1 longident2 &&
@@ -285,14 +288,14 @@ let expandLocation pos ~expand:(startPos, endPos) =
 let extractLocationFromValBindList expr vbs =
   let rec extract loc = function
     | x::xs ->
-        let {pvb_pat; pvb_expr} = x in
+        let {pvb_pat; pvb_expr;_} = x in
         let loc = {loc with loc_end = pvb_expr.pexp_loc.loc_end} in
         extract loc xs
     | [] -> loc
   in
   match vbs with
   | x::xs ->
-      let {pvb_pat; pvb_expr} = x in
+      let {pvb_pat; pvb_expr;_} = x in
       let loc = {pvb_pat.ppat_loc with loc_end = pvb_expr.pexp_loc.loc_end} in
       extract loc xs
   | [] -> expr.pexp_loc
@@ -312,7 +315,7 @@ let rec partitionAttributes ?(partDoc=false) ?(allowUncurry=true) attrs : attrib
   match attrs with
     | [] ->
       {arityAttrs=[]; docAttrs=[]; stdAttrs=[]; jsxAttrs=[]; literalAttrs=[]; uncurried = false}
-    | (({txt = "bs"}, PStr []) as attr)::atTl ->
+    | (({txt = "bs";_}, PStr []) as attr)::atTl ->
         let partition = partitionAttributes ~partDoc ~allowUncurry atTl in
         if allowUncurry then
           {partition with uncurried = true}
@@ -354,7 +357,7 @@ let extract_raw_literal attrs =
 
 let rec sequentialIfBlocks x =
   match x with
-    | Some ({pexp_desc=Pexp_ifthenelse (e1, e2, els)}) -> (
+    | Some ({pexp_desc=Pexp_ifthenelse (e1, e2, els);_}) -> (
        let (nestedIfs, finalExpression) = (sequentialIfBlocks els) in
        ((e1, e2)::nestedIfs, finalExpression)
       )
@@ -667,7 +670,7 @@ let isRightAssociative ~prec = match precedenceInfo ~prec with
   | Some (Left, _) -> false
   | Some (Nonassoc, _) -> false
 
-let higherPrecedenceThan c1 c2 = match ((precedenceInfo c1), (precedenceInfo c2)) with
+let higherPrecedenceThan c1 c2 = match ((precedenceInfo ~prec:c1), (precedenceInfo ~prec:c2)) with
   | (_, None)
   | (None, _) ->
     let (str1, str2) = match (c1, c2) with
@@ -680,7 +683,7 @@ let higherPrecedenceThan c1 c2 = match ((precedenceInfo c1), (precedenceInfo c2)
   | (Some (_, p1), Some (_, p2)) -> p1 < p2
 
 let printedStringAndFixityExpr = function
-  | {pexp_desc = Pexp_ident {txt=Lident l}} -> printedStringAndFixity l
+  | {pexp_desc = Pexp_ident {txt=Lident l;_};_} -> printedStringAndFixity l
   | _ -> Normal
 
 (* which identifiers are in fact operators needing parentheses *)
@@ -700,7 +703,7 @@ let needs_spaces txt =
   txt.[0]='*' || txt.[String.length txt - 1] = '*'
 
 let rec orList = function (* only consider ((A|B)|C)*)
-  | {ppat_desc = Ppat_or (p1, p2)} -> (orList p1) @ (orList p2)
+  | {ppat_desc = Ppat_or (p1, p2);_} -> (orList p1) @ (orList p2)
   | x -> [x]
 
 let override = function
@@ -724,14 +727,14 @@ type construct =
 let view_expr x =
   match x.pexp_desc with
   | Pexp_construct ( {txt= Lident "()"; _},_) -> `tuple
-  | Pexp_construct ( {txt= Lident "[]"},_) -> `nil
-  | Pexp_construct ( {txt= Lident"::"},Some _) ->
+  | Pexp_construct ( {txt= Lident "[]";_},_) -> `nil
+  | Pexp_construct ( {txt= Lident"::";_},Some _) ->
     let rec loop exp acc = match exp with
-      | {pexp_desc=Pexp_construct ({txt=Lident "[]"},_)} ->
+      | {pexp_desc=Pexp_construct ({txt=Lident "[]";_},_);_} ->
         (List.rev acc,true)
       | {pexp_desc=
-           Pexp_construct ({txt=Lident "::"},
-                           Some ({pexp_desc= Pexp_tuple([e1;e2])}))} ->
+           Pexp_construct ({txt=Lident "::";_},
+                           Some ({pexp_desc= Pexp_tuple([e1;e2]);_}));_} ->
         loop e2 (e1::acc)
       | e -> (List.rev (e::acc),false) in
     let (ls,b) = loop x []  in
@@ -1315,7 +1318,7 @@ let rec consolidateSeparator l = preOrderWalk (function
 
 
 (** [insertLinesAboveItems layout] walks the [layout] and insert empty lines *)
-let rec insertLinesAboveItems items = preOrderWalk (function
+let insertLinesAboveItems items = preOrderWalk (function
   | Whitespace(region, sub) ->
       insertBlankLines (WhitespaceRegion.newlines region) sub
   | layout -> layout
@@ -3462,7 +3465,7 @@ let printer = object(self:'self)
       else if (higherPrecedenceThan withPrecedence shiftPrecedence) then
         LayoutNode (formatPrecedence ~loc:reducesAfterRight.pexp_loc (self#unparseResolvedRule rightRecurse))
       else (
-        if isRightAssociative withPrecedence then
+        if isRightAssociative ~prec:withPrecedence then
          rightRecurse
         else
           LayoutNode (formatPrecedence ~loc:reducesAfterRight.pexp_loc (self#unparseResolvedRule rightRecurse))
@@ -3479,7 +3482,7 @@ let printer = object(self:'self)
       else if higherPrecedenceThan reducesOnToken reducePrecedence then
         LayoutNode (formatPrecedence ~loc:expr.pexp_loc (self#unparseResolvedRule leftRecurse))
       else (
-        if isLeftAssociative reducesOnToken then
+        if isLeftAssociative ~prec:reducesOnToken then
           leftRecurse
         else
           LayoutNode (formatPrecedence ~loc:expr.pexp_loc (self#unparseResolvedRule leftRecurse))

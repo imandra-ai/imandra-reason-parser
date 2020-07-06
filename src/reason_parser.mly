@@ -461,7 +461,7 @@ let ghexp_constraint loc e (t1, t2) =
   | None, None -> assert false
 
 let array_function ?(loc=dummy_loc()) str name =
-  ghloc ~loc (Ldot(Lident str, (if !Clflags.fast then "unsafe_" ^ name else name)))
+  ghloc ~loc (Ldot(Lident str, (if !Clflags.unsafe then "unsafe_" ^ name else name)))
 
 let syntax_error_str loc msg =
   if !Reason_config.recoverable then
@@ -714,7 +714,7 @@ let bigarray_untuplify = function
   | exp -> [exp]
 
 let bigarray_get ?(loc=dummy_loc()) arr arg =
-  let get = if !Clflags.fast then "unsafe_get" else "get" in
+  let get = if !Clflags.unsafe then "unsafe_get" else "get" in
   match bigarray_untuplify arg with
     [c1] ->
       mkexp(Pexp_apply(mkexp ~ghost:true ~loc (Pexp_ident(bigarray_function ~loc "Array1" get)),
@@ -730,7 +730,7 @@ let bigarray_get ?(loc=dummy_loc()) arr arg =
                        [Nolabel, arr; Nolabel, mkexp ~ghost:true ~loc (Pexp_array coords)]))
 
 let bigarray_set ?(loc=dummy_loc()) arr arg newval =
-  let set = if !Clflags.fast then "unsafe_set" else "set" in
+  let set = if !Clflags.unsafe then "unsafe_set" else "set" in
   match bigarray_untuplify arg with
     [c1] ->
       mkexp(Pexp_apply(mkexp ~ghost:true ~loc (Pexp_ident(bigarray_function ~loc "Array1" set)),
@@ -4433,9 +4433,9 @@ val_ident:
   | GREATER           { ">" }
   | OR                { "or" }
   | BARBAR            { "||" }
-  | IMPLY_ARROW       { "==>" }
-  | IMPLY_LEFT_ARROW  { "<==" }
-  | EQUIV_ARROW       { "<==>" }
+  | IMPLY_ARROW       { "implies" }
+  | IMPLY_LEFT_ARROW  { "explies" }
+  | EQUIV_ARROW       { "iff" }
   | AMPERSAND         { "&" }
   | AMPERAMPER        { "&&" }
   | COLONEQUAL        { ":=" }

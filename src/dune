@@ -11,6 +11,7 @@
 (executables
  (names menhir_error_processor)
  (modules menhir_error_processor)
+ (flags :standard -warn-error -3-27-33)
  (libraries unix menhirSdk))
 
 (rule
@@ -50,6 +51,7 @@
   reason_oprint
   reason_parser_explain_raw
   reason_parser_explain)
+ (flags :standard -warn-error -3-27-32-33 -w -9-50)
  (libraries
   ocaml-migrate-parsetree
   menhirLib

@@ -340,7 +340,7 @@ let report_error ppf = function
   | Unterminated_string_in_comment (_, loc) ->
       fprintf ppf "This comment contains an unterminated string literal@.\
                    %aString literal begins here"
-              Location.print_error loc
+              Location.print_loc loc
   | Keyword_as_label kwd ->
       fprintf ppf "`%s' is a keyword, it cannot be used as label name" kwd
   | Literal_overflow ty ->
@@ -353,7 +353,7 @@ let () =
   Location.register_error_of_exn
     (function
       | Error (err, loc) ->
-          Some (Location.error_of_printer loc report_error err)
+          Some (Location.error_of_printer ~loc report_error err)
       | _ ->
           None
     )
