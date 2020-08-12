@@ -10,7 +10,7 @@ build: [
 depends: [
   "dune" {build}
   "menhir"
-  "ocaml-migrate-parsetree"
+  "ocaml-migrate-parsetree" { >= "1.7"  & < "2.0" }
   "ocaml-compiler-libs"
   "uchar"
   "easy-format"
