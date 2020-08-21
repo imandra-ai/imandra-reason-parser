@@ -24,7 +24,7 @@
    (run ../generate/select.exe reason_string.ml-4.02 reason_string.ml-default))))
 
 (menhir
- (flags --strict --inspection --unused-tokens --table --cmly)
+ (flags --strict --inspection --unused-tokens --table --cmly --explain)
  (modules reason_parser))
 
 ; Previously, make preprocess.
