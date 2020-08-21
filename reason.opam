@@ -1,6 +1,7 @@
 opam-version: "2.0"
 maintainer: "Jordan Walke <jordojw@gmail.com>"
 authors: [ "Jordan Walke <jordojw@gmail.com>" ]
+version: "0.4-ai"
 license: "MIT"
 homepage: "https://github.com/facebook/reason"
 doc: "http://reasonml.github.io/"
