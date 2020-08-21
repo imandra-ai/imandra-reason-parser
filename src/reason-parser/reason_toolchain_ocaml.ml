@@ -61,6 +61,13 @@ let core_type lexbuf =
                      (Parser.parse_core_type Lexer.token lexbuf))
     lexbuf
 
+let expression lexbuf =
+  parse_and_filter_doc_comments
+    (fun it -> it.Ast_mapper.expr it)
+    (fun lexbuf -> From_current.copy_expression
+                     (Parser.parse_expression Lexer.token lexbuf))
+    lexbuf
+
 let interface lexbuf =
   parse_and_filter_doc_comments
     (fun it -> it.Ast_mapper.signature it)

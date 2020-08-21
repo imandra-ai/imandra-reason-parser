@@ -51,6 +51,9 @@ let interface lexer =
 let core_type lexer =
   initial_run Reason_parser.Incremental.parse_core_type lexer
 
+let expression lexer =
+  initial_run Reason_parser.Incremental.parse_expression lexer
+
 let toplevel_phrase lexer =
   initial_run Reason_parser.Incremental.toplevel_phrase lexer
 
