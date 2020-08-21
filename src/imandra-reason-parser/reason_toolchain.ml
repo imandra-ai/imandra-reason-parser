@@ -318,6 +318,12 @@ module Create_parse_entrypoint (Toolchain_impl: Toolchain_spec) :Toolchain = str
       let loc, error = default_error lexbuf err in
       (Ast_helper.Typ.mk ~loc (Parsetree.Ptyp_extension error), [])
 
+  let expression_with_comments lexbuf =
+    try wrap_with_comments Toolchain_impl.expression ignore_attach_errors lexbuf
+    with err ->
+      let loc, error = default_error lexbuf err in
+      (Ast_helper.Exp.mk ~loc (Parsetree.Pexp_extension error), [])
+
   let interface_with_comments lexbuf =
     let attach impl extensions =
       (impl @ List.map Ast_helper.Sig.extension extensions)
@@ -342,6 +348,8 @@ module Create_parse_entrypoint (Toolchain_impl: Toolchain_spec) :Toolchain = str
   let implementation = ast_only implementation_with_comments
 
   let core_type = ast_only core_type_with_comments
+
+  let expression = ast_only expression_with_comments
 
   let interface = ast_only interface_with_comments
 

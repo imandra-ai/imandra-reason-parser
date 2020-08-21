@@ -24,7 +24,7 @@
    (run ../generate/select.exe reason_string.ml-4.02 reason_string.ml-default))))
 
 (menhir
- (flags --strict --inspection --unused-tokens --table --cmly)
+ (flags --strict --inspection --unused-tokens --table --cmly --explain)
  (modules reason_parser))
 
 ; Previously, make preprocess.
@@ -81,11 +81,11 @@
     -o %{targets})))
 
 (library
- (name reason)
+ (name imandra_reason_parser)
  ; Uncomment to allow make coverage target to work
  ; requires you to have run $ opam install bisect_ppx
  ;  (preprocess (pps (bisect_ppx)))
- (public_name reason)
+ (public_name imandra-reason-parser)
  (wrapped false)
  (flags
   (:standard -w -9-52 -safe-string))
@@ -96,5 +96,7 @@
    reason_parser reason_single_parser reason_multi_parser merlin_recovery
    reason_recover_parser reason_declarative_lexer reason_lexer reason_oprint
    reason_parser_explain_raw reason_parser_explain reason_parser_recover
+   reason_imandra_plugin
    reason_string)
- (libraries reason.ocaml-migrate-parsetree menhirLib reason.easy_format))
+ (libraries reason.ocaml-migrate-parsetree
+            menhirLib reason.easy_format))
