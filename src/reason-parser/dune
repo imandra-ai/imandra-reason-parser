@@ -16,7 +16,7 @@
      ocaml_util.ml-4.06 ocaml_util.ml-default))))
 
 (menhir
- (flags --strict --inspection --unused-tokens --table --cmly)
+ (flags --strict --inspection --unused-tokens --table --cmly --explain)
  (modules reason_parser))
 
 ; Previously, make preprocess.

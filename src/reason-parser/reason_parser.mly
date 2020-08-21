@@ -1070,6 +1070,10 @@ let add_brace_attr expr =
   in
   { expr with pexp_attributes= attr :: expr.pexp_attributes }
 
+let mk_anonymous =
+  let n = ref 0 in
+  fun what -> incr n; Printf.sprintf "_anonymous_%s_%d" what !n
+
 %}
 
 %[@recover.prelude
@@ -1167,6 +1171,16 @@ let add_brace_attr expr =
 %token LESSDOTDOTGREATER
 %token EQUALGREATER
 %token LET
+
+%token INSTANCE
+%token VERIFY
+%token THEOREM
+%token LEMMA
+%token AXIOM
+%token IMPLY_ARROW
+%token IMPLY_LEFT_ARROW
+%token EQUIV_ARROW
+
 %token <string> LIDENT [@recover.expr ""] [@recover.cost 2]
 %token LPAREN
 %token LBRACKETAT
@@ -1256,6 +1270,10 @@ conflicts.
 %nonassoc AS
 %nonassoc below_BAR                     (* Allows "building up" of many bars *)
 %left     BAR                           (* pattern (p|p|p) *)
+
+%nonassoc EQUIV_ARROW                   (* expr (e <==> e) *)
+%right    IMPLY_ARROW                   (* expr (e ==> e ==> e) *)
+%left     IMPLY_LEFT_ARROW                   (* expr (e <== e <== e) *)
 
 %right    OR BARBAR                     (* expr (e || e || e) *)
 %right    AMPERSAND AMPERAMPER          (* expr (e && e && e) *)
@@ -1713,6 +1731,10 @@ structure_item:
       (* No sense in having item_extension_sugar for something that's already an
        * item_extension *)
       { mkstr(Pstr_extension ($2, $1)) }
+    | top_verify { $1 }
+    | top_instance { $1 }
+    | top_theorem { $1 }
+    | top_axiom { $1 }
     | let_bindings
       { val_of_let_bindings $1 }
     ) { [$1] }
@@ -4698,6 +4720,9 @@ val_ident:
   | LESS              { "<" }
   | OR                { "or" }
   | BARBAR            { "||" }
+  | IMPLY_ARROW       { "implies" }
+  | IMPLY_LEFT_ARROW  { "explies" }
+  | EQUIV_ARROW       { "iff" }
   | AMPERSAND         { "&" }
   | AMPERAMPER        { "&&" }
   | COLONEQUAL        { ":=" }
@@ -5139,5 +5164,91 @@ lseparated_nonempty_list_aux(sep, X):
 
 (*Less than followed by one or more X, then greater than *)
 %inline lessthangreaterthanized(X): delimited(LESS, X, GREATER) { $1 };
+
+;
+
+%inline upto_label:
+  | { [] }
+  | as_loc(label_longident) COLON INT
+    { (* used for `verify ~upto:n …` *)
+      if $1.txt = Lident "upto" || $1.txt = Lident "upto_steps" then (
+        let n, _ = $3 in
+        [mkstrexp (mkexp (Pexp_constant (Pconst_integer (n,Some 'i')))) []]
+      ) else if $1.txt = Lident "upto_bound" then (
+        let n, _ = $3 in
+        [mkstrexp (mkexp (Pexp_tuple
+          [mkexp (Pexp_constant (Pconst_string ("bound", None)));
+           mkexp (Pexp_constant (Pconst_integer (n,Some 'i')))])) []]
+      ) else (
+        let loc = rhs_loc 3 in
+        raise Syntaxerr.(Error(Not_expecting(loc, Longident.last $1.txt)));
+      )
+    }
+
+top_verify:
+  | item_attributes VERIFY upto_label simple_expr {
+    (* `verify (fun x y -> body)` becomes `let _ = (fun x y -> body) [@@verify]` *)
+    let loc = rhs_loc 4 and expr = $4 and attrs = $1 and upto = $3 in
+    let attrs = Attr.mk {txt="imandra_verify";loc} (PStr upto) :: attrs in
+    let vb =
+      Vb.mk ~loc ~attrs
+      (mkpat ~loc Ppat_any) expr
+      in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
+top_instance:
+  | item_attributes INSTANCE upto_label simple_expr {
+    (* `instance (fun x y -> body)` becomes `let _ = (fun x y -> body) [@@instance]` *)
+    let loc = rhs_loc 4 and attrs = $1 and upto = $3 in
+    let vb = {
+      pvb_pat=mkpat Ppat_any;
+      pvb_loc=loc;
+      pvb_expr=$4;
+      pvb_attributes=(Attr.mk {txt="imandra_instance";loc} (PStr upto)) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
+theorem_name:
+  | ident { $1 }
+  | UNDERSCORE { mk_anonymous "theorem" }
+
+%inline theorem_start:
+  | THEOREM {}
+  | LEMMA {}
+
+top_theorem:
+  | item_attributes theorem_start theorem_name EQUAL expr {
+    (* `theorem foo x y = body` becomes `let foo x y = body [@@theorem]` *)
+    let loc = rhs_loc 3 in
+    let id = $3 and fun_def = $5 and attrs = $1 in
+    let vb = {
+      pvb_pat=mkpat (Ppat_var {txt=id;loc});
+      pvb_loc=loc;
+      pvb_expr=fun_def;
+      pvb_attributes=(Attr.mk {txt="imandra_theorem";loc} (PStr[])) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
+axiom_name:
+  | ident { $1 }
+  | UNDERSCORE { mk_anonymous "axiom" }
+
+top_axiom:
+  | item_attributes AXIOM axiom_name EQUAL expr {
+    (* `axiom foo x y = body` becomes `let foo x y = body [@@axiom]` *)
+    let loc = rhs_loc 3 in
+    let id = $3 and fun_def = $5 and attrs = $1 in
+    let vb = {
+      pvb_pat=mkpat (Ppat_var {txt=id;loc});
+      pvb_loc=loc;
+      pvb_expr=fun_def;
+      pvb_attributes=(Attr.mk {txt="imandra_axiom";loc} (PStr[])) :: attrs;
+    } in
+    mkstr (Pstr_value (Nonrecursive, [vb]))
+  }
+
 
 %%
