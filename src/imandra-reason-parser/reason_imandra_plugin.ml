@@ -1,14 +1,20 @@
 
 module P = Reason_toolchain.RE
-module Util = Reason_syntax_util
 
 module OMP = Reason_migrate_parsetree
 
-(* TODO : remove? *)
-let init_lexer = ()
-
 let wrap ~post parsing_fun lexbuf =
-  parsing_fun lexbuf |> post
+  try parsing_fun lexbuf |> post
+  with
+  | (End_of_file | Sys.Break | Unix.Unix_error _) as e -> raise e
+  | Parsing.Parse_error ->
+    let loc = Location.curr lexbuf in
+    raise (Syntaxerr.Error (Syntaxerr.Other loc))
+  | Syntaxerr.Error _ as e -> raise e
+  | _e ->
+    let loc = Location.curr lexbuf in
+    raise (Syntaxerr.Error (Syntaxerr.Other loc))
+(*     raise (Error (Format.asprintf "error in reason:\n%s" (Printexc.to_string e))) *)
 
 module Conv = OMP.Convert(OMP.OCaml_408)(OMP.OCaml_current)
 
@@ -31,6 +37,7 @@ let implementation lexbuf =
   wrap P.implementation lexbuf ~post:(fun x ->
     x
     |> Conv.copy_structure)
+
 
 (*
 let report_exn out (e:exn): bool =
