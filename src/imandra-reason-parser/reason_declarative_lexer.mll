@@ -109,6 +109,11 @@ let keyword_table, reverse_keyword_table =
     "initializer", INITIALIZER;
     "lazy", LAZY;
     "let", LET;
+    "instance", INSTANCE;
+    "theorem", THEOREM;
+    "lemma", THEOREM;
+    "axiom", AXIOM;
+    "verify", VERIFY;
     "switch", SWITCH;
     "module", MODULE;
     "pub", PUB;
@@ -467,6 +472,9 @@ rule token state = parse
   | ","  { COMMA }
   | "->" { MINUSGREATER }
   | "=>" { EQUALGREATER }
+  | "==>" { IMPLY_ARROW }
+  | "<==" { IMPLY_LEFT_ARROW }
+  | "<==>" { EQUIV_ARROW }
   (* allow lexing of | `Variant =><Component /> *)
   | "=><" uppercase_or_lowercase (identchar | '.') * {
     set_lexeme_length lexbuf 2;
@@ -635,9 +643,9 @@ rule token state = parse
   | '%' operator_chars*
     { INFIXOP3 (lexeme_operator lexbuf) }
   | "let" kwdopchar dotsymbolchar *
-    { LETOP (Reason_syntax_util.expand_letop_identifier (lexeme_operator lexbuf)) }
+    { LETOP (lexeme_operator lexbuf) }
   | "and" kwdopchar dotsymbolchar *
-    { ANDOP (Reason_syntax_util.expand_letop_identifier (lexeme_operator lexbuf)) }
+    { ANDOP (lexeme_operator lexbuf) }
   | eof { EOF }
   | _
     { raise_error

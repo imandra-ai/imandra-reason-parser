@@ -15,6 +15,7 @@ module type Toolchain = sig
   val interface: Lexing.lexbuf -> Parsetree.signature
   val toplevel_phrase: Lexing.lexbuf -> Parsetree.toplevel_phrase
   val use_file: Lexing.lexbuf -> Parsetree.toplevel_phrase list
+  val expression : Lexing.lexbuf -> Parsetree.expression
 
   (* Printing *)
   val print_interface_with_comments: Format.formatter -> (Parsetree.signature * Reason_comment.t list) -> unit
@@ -41,6 +42,7 @@ module type Toolchain_spec = sig
   val interface: Lexer.t -> Parsetree.signature * invalid_docstrings
   val toplevel_phrase: Lexer.t -> Parsetree.toplevel_phrase * invalid_docstrings
   val use_file: Lexer.t -> Parsetree.toplevel_phrase list * invalid_docstrings
+  val expression : Lexer.t -> Parsetree.expression * invalid_docstrings
 
   val format_interface_with_comments: (Parsetree.signature * Reason_comment.t list) -> Format.formatter -> unit
   val format_implementation_with_comments: (Parsetree.structure * Reason_comment.t list) -> Format.formatter -> unit

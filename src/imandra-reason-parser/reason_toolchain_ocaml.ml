@@ -61,6 +61,13 @@ let core_type lexbuf =
                      (Parser.parse_core_type Lexer.token lexbuf))
     lexbuf
 
+let expression lexbuf =
+  parse_and_filter_doc_comments
+    (fun it -> it.Ast_mapper.expr it)
+    (fun lexbuf -> From_current.copy_expression
+                     (Parser.parse_expression Lexer.token lexbuf))
+    lexbuf
+
 let interface lexbuf =
   parse_and_filter_doc_comments
     (fun it -> it.Ast_mapper.signature it)
@@ -136,9 +143,10 @@ let format_interface_with_comments (signature, _) formatter =
     (To_current.copy_signature signature)
 let format_implementation_with_comments (structure, _) formatter =
   let structure =
-    Reason_syntax_util.(apply_mapper_to_structure
-      structure
-      (backport_letopt_mapper remove_stylistic_attrs_mapper))
+    Reason_syntax_util.(apply_mapper_to_structure structure remove_stylistic_attrs_mapper)
+  in
+  let structure =
+    Reason_syntax_util.(apply_mapper_to_structure structure backport_letopt_mapper)
   in
   Pprintast.structure formatter
     (To_current.copy_structure structure)
