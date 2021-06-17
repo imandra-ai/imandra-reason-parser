@@ -5,26 +5,18 @@
 
 (rule
  (targets ocaml_util.ml)
- (deps ../generate/select.exe ocaml_util.ml-4.11 ocaml_util.ml-4.10
+ (deps ../generate/select.exe ocaml_util.ml-4.12 ocaml_util.ml-4.11 ocaml_util.ml-4.10
    ocaml_util.ml-4.09 ocaml_util.ml-4.08 ocaml_util.ml-4.07
    ocaml_util.ml-4.06 ocaml_util.ml-default)
  (action
   (with-stdout-to
    %{targets}
-   (run ../generate/select.exe ocaml_util.ml-4.11 ocaml_util.ml-4.10
+   (run ../generate/select.exe ocaml_util.ml-4.12 ocaml_util.ml-4.11 ocaml_util.ml-4.10
      ocaml_util.ml-4.09 ocaml_util.ml-4.08 ocaml_util.ml-4.07
      ocaml_util.ml-4.06 ocaml_util.ml-default))))
 
-(rule
- (targets reason_string.ml)
- (deps ../generate/select.exe reason_string.ml-4.02 reason_string.ml-default)
- (action
-  (with-stdout-to
-   %{targets}
-   (run ../generate/select.exe reason_string.ml-4.02 reason_string.ml-default))))
-
 (menhir
- (flags --strict --inspection --unused-tokens --table --cmly --explain)
+ (flags --strict --inspection --unused-tokens --table --cmly)
  (modules reason_parser))
 
 ; Previously, make preprocess.
@@ -98,5 +90,4 @@
    reason_parser_explain_raw reason_parser_explain reason_parser_recover
    reason_imandra_plugin
    reason_string)
- (libraries reason.ocaml-migrate-parsetree
-            menhirLib reason.easy_format))
+ (libraries reason.ocaml-migrate-parsetree menhirLib reason.easy_format))
