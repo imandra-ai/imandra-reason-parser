@@ -15,7 +15,7 @@ depends: [
   "merlin-extend" {>= "0.6"}
   "fix"
   "result"
-  "ocaml-migrate-parsetree" {< "2.0.0"}
+  "ocaml-migrate-parsetree" # {< "2.0.0"}
   "reason" { = version }
 ]
 homepage: "https://github.com/aestheticintegration/imandra-reason-parser"
