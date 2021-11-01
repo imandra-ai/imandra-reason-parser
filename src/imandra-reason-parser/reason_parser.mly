@@ -49,7 +49,7 @@
 
 %{
 open Reason_migrate_parsetree
-open OCaml_408.Ast
+open Ast_408
 open Reason_syntax_util
 open Location
 open Asttypes

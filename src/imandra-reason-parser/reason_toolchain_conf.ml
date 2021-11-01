@@ -1,8 +1,9 @@
 open Reason_migrate_parsetree
 include Ast_408
 
-module From_current = Convert(OCaml_current)(OCaml_408)
-module To_current = Convert(OCaml_408)(OCaml_current)
+module Ast_current = Ast_413
+module From_current = Convert(Ast_current)(Ast_408)
+module To_current = Convert(Ast_408)(Ast_current)
 
 module type Toolchain = sig
   (* Parsing *)
