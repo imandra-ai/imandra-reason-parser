@@ -8,7 +8,7 @@ build: [
   ["dune" "build" "@install" "-p" name]
 ]
 depends: [
-  "ocaml"         {>= "4.02" & < "4.13"}
+  "ocaml"         {>= "4.02" & < "4.14"}
   "dune"          {>= "1.4"}
   "ocamlfind"     {build}
   "menhir"        {>= "20170418"}
