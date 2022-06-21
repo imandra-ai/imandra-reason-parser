@@ -16,7 +16,7 @@ let wrap ~post parsing_fun lexbuf =
     raise (Syntaxerr.Error (Syntaxerr.Other loc))
 (*     raise (Error (Format.asprintf "error in reason:\n%s" (Printexc.to_string e))) *)
 
-module Conv = OMP.Convert(OMP.OCaml_408)(OMP.OCaml_current)
+module Conv = OMP.Convert(OMP.OCaml_411)(OMP.OCaml_current)
 
 let expr lexbuf =
   wrap P.expression lexbuf ~post:(fun x ->
