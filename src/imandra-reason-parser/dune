@@ -147,5 +147,6 @@
   reason_parser_explain_raw
   reason_parser_explain
   reason_parser_recover
+  reason_imandra_plugin
   reason_string)
  (libraries reason.ocaml-migrate-parsetree menhirLib reason.easy_format))
